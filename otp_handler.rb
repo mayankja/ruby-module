@@ -1,13 +1,10 @@
 module OtpHandler
-
   def self.included(klass)
     klass.extend ClassMethods
     klass.send(:include, InstanceMethods)
   end
 
   module ClassMethods
-
-
     def required_fields
       [:otp_confirmed_at, :otp_sent_at, :otp_token, :otp_type]
     end
@@ -25,7 +22,6 @@ module OtpHandler
 
     def confirm_otp_by_token(original_token, otp_type, params)      
       otp_obj = with_otp_token(original_token, otp_type)
-
       unless otp_obj.blank?
         if otp_obj.otp_period_valid?
           otp_obj.set_otp_confirmed_at(Time.now.utc)
@@ -34,7 +30,6 @@ module OtpHandler
           otp_obj.errors.add(:otp_token, :expired)
         end
       end
-
       otp_obj
     end
 
@@ -55,11 +50,9 @@ module OtpHandler
         break [raw, enc] unless where({column => enc}).first
       end
     end
-
   end
 
   module InstanceMethods
-
     def otp_within
       1.hours
     end
@@ -69,7 +62,6 @@ module OtpHandler
       self.otp_confirmed_at = confirmed_at
       save(validate: false)
     end
-
 
     def otp_period_valid?
       otp_sent_at && otp_sent_at.utc >= self.otp_within.ago.utc
@@ -84,7 +76,6 @@ module OtpHandler
       token = set_otp_token(otp_type)
       message = compose_otp_instructions_message(token)
       send_otp_instructions_message(token, message)
-
       token
     end
 
@@ -112,6 +103,5 @@ module OtpHandler
       save(validate: false)
       raw
     end
-
   end
 end
